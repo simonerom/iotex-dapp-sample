@@ -4,6 +4,7 @@ import "./index.scss";
 import { useStore } from "../../../common/store/index";
 import { ClientOnly } from "../../components/ClientOnly/clientOnly";
 import { rpcClient } from "../../utils/rpc";
+import { Button } from "antd";
 
 export const Home = () => {
   const { lang, wallet } = useStore();
@@ -37,19 +38,19 @@ export const Home = () => {
         <div>
           {lang.t("HELLO_MESSAGE", { message: "React" })}: {store.count}
         </div>
-        <button className="px-2" onClick={() => store.setCount(store.count + 1)}>
+        <Button className="px-2" onClick={() => store.setCount(store.count + 1)}>
           +
-        </button>
-        <button className="px-2" onClick={() => store.setCount(store.count - 1)}>
+        </Button>
+        <Button className="px-2" onClick={() => store.setCount(store.count - 1)}>
           -
-        </button>
+        </Button>
         <div>
-          <button className="px-2" onClick={() => lang.setLang("en")}>
+          <Button className="px-2" onClick={() => lang.setLang("en")}>
             en
-          </button>
-          <button className="px-2" onClick={() => lang.setLang("zh")}>
+          </Button>
+          <Button className="px-2" onClick={() => lang.setLang("zh")}>
             zh
-          </button>
+          </Button>
         </div>
         <div>
           {!wallet.account.address ? (
