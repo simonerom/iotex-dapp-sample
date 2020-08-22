@@ -9,7 +9,7 @@ yarn install
 yarn dev
 ```
 
-## Tech ref
+## Reference
 
 nestjs: https://docs.nestjs.com/
 
