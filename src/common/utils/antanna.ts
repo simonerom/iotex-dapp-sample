@@ -6,6 +6,7 @@ import { JsBridgeSignerMobile } from "./js-plugin";
 import { IRequest } from "iotex-antenna/lib/plugin/ws/request";
 import sleepPromise from "sleep-promise";
 import { Contract } from "iotex-antenna/lib/contract/contract";
+import { SignerPlugin } from "iotex-antenna/lib/action/method";
 
 export class AntennaUtils {
   public static defaultContractOptions = {
@@ -13,22 +14,23 @@ export class AntennaUtils {
     gasPrice: "1000000000000",
   };
   public static antenna: Antenna | null = null;
-
-  public static wsSigner: WsSignerPlugin = new WsSignerPlugin({
-    options: {
-      packMessage: (data) => JSON.stringify(data),
-      //@ts-ignore
-      unpackMessage: (data) => JSON.parse(data),
-      attachRequestId: (data, requestId) => Object.assign({ reqId: requestId }, data),
-      extractRequestId: (data) => data && data.reqId,
-    },
-  });
+  public static wsSigner: WsSignerPlugin | undefined;
 
   static getAntenna(): Antenna {
+    let isIoPayMobile = navigator.userAgent && (navigator.userAgent.includes("IoPayAndroid") || navigator.userAgent.includes("IoPayiOs"));
     if (this.antenna) {
       return this.antenna;
     }
-    if (utils.env.isBrowser()) {
+    if (utils.env.isBrowser() && !isIoPayMobile) {
+      this.wsSigner = new WsSignerPlugin({
+        options: {
+          packMessage: (data) => JSON.stringify(data),
+          //@ts-ignore
+          unpackMessage: (data) => JSON.parse(data),
+          attachRequestId: (data, requestId) => Object.assign({ reqId: requestId }, data),
+          extractRequestId: (data) => data && data.reqId,
+        },
+      });
       const antenna = new Antenna(publicConfig.IOTEX_CORE_ENDPOPINT, {
         signer: this.wsSigner.start(),
       });
@@ -36,8 +38,7 @@ export class AntennaUtils {
       this.antenna = antenna;
       return antenna;
     }
-
-    if (globalThis.isIoPayMobile) {
+    if (isIoPayMobile) {
       const antenna = new Antenna(publicConfig.IOTEX_CORE_ENDPOPINT, {
         signer: new JsBridgeSignerMobile(),
       });
@@ -67,6 +68,16 @@ export function lazyGetContract(address: string, abi: any): Contract {
     signer: antenna.iotx.signer,
   });
   return contractsByAddrs[address];
+}
+
+export async function getIoPayAddress(): Promise<string> {
+  if (navigator.userAgent && (navigator.userAgent.includes("IoPayAndroid") || navigator.userAgent.includes("IoPayiOs"))) {
+    // tslint:disable-next-line:no-unnecessary-local-variable
+    const address = await getIoAddressFromIoPay();
+    return address;
+  }
+  const accounts = AntennaUtils.getAntenna().iotx.signer.getAccounts();
+  return (accounts && accounts[0] && accounts[0].address) || "";
 }
 
 // tslint:disable-next-line:insecure-random

@@ -56,9 +56,14 @@ export const Home = () => {
           {!wallet.account.address ? (
             <button onClick={store.onConnectWallet}>Connect to wallet...</button>
           ) : (
-            <span>
-              {wallet.account.address}: {wallet.account.balance}
-            </span>
+            <div>
+              <span>
+                {wallet.account.address}: {wallet.account.balance}
+              </span>
+              <Button className="px-2" onClick={() => wallet.claimVita()}>
+                Claim VITA
+              </Button>
+            </div>
           )}
         </div>
       </div>
