@@ -34,17 +34,19 @@ export class WalletStore {
 
   @action.bound
   async initWS() {
-    const [err, accounts] = await utils.helper.promise.runAsync(AntennaUtils.wsSigner.getAccounts());
-    if (err || !accounts.length) {
-      if (this.enableConnect) {
-        setTimeout(() => {
-          this.initWS();
-        }, 5000);
+    if (globalThis.isIoPayMobile) {
+    } else {
+      const [err, accounts] = await utils.helper.promise.runAsync(AntennaUtils.wsSigner.getAccounts());
+      if (err || !accounts.length) {
+        if (this.enableConnect) {
+          setTimeout(() => {
+            this.initWS();
+          }, 5000);
+        }
+        return;
       }
-      return;
+      this.account.address = accounts[0].address;
     }
-
-    this.account.address = accounts[0].address;
   }
 
   @action.bound
