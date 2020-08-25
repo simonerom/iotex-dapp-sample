@@ -2,10 +2,10 @@ import { observable, action, computed } from "mobx";
 import remotedev from "mobx-remotedev";
 import { AntennaUtils, getIoPayAddress } from "../utils/antanna";
 import { utils } from "../utils/index";
-import { fromRau } from "iotex-antenna/lib/account/utils";
+import { fromRau, toRau } from "iotex-antenna/lib/account/utils";
 import { CLAIM_ABI } from "../../client/utils/abi";
 import { Contract } from "iotex-antenna/lib/contract/contract";
-import { log } from "util";
+import BigNumber from "bignumber.js";
 
 @remotedev({ name: "wallet" })
 export class WalletStore {
@@ -64,23 +64,73 @@ export class WalletStore {
   @action.bound
   async claimVita() {
     try {
-      const contract = new Contract(CLAIM_ABI, "io1hp6y4eqr90j7tmul4w2wa8pm7wx462hq0mg4tw", { provider: AntennaUtils.antenna.iotx, signer: AntennaUtils.antenna.iotx.signer });
+      const contract = new Contract(CLAIM_ABI, "io1hp6y4eqr90j7tmul4w2wa8pm7wx462hq0mg4tw", {
+        provider: AntennaUtils.antenna.iotx,
+        signer: AntennaUtils.antenna.iotx.signer,
+      });
 
-      const actionHash = await contract.methods.claimAs(
-        this.account.address,
-        Buffer.from("132b161020b0bf98a4e0db727acc55b1adf7f4da1a08b2859e84a6a51495246b7d6ba627fcafb9625bd87934a8219bd0aed6576b796b01a9a47505ef68ce6d991b", "hex"),
-        "1",
-        {
-          // @ts-ignore
-          account: AntennaUtils.antenna.iotx.accounts[0],
-          gasLimit: "300000",
-          gasPrice: "1000000000000",
-        }
-      );
+      const actionHash = await contract.methods.claim({
+        // @ts-ignore
+        account: AntennaUtils.antenna.iotx.accounts[0],
+        gasLimit: "300000",
+        gasPrice: "1000000000000",
+      });
 
       this.actionHash = actionHash;
     } catch (e) {
       window.console.log(`failed to claim vita: ${e}`);
+    }
+  }
+
+  @action.bound
+  async transferVita() {
+    try {
+      const contract = new Contract(CLAIM_ABI, "io1hp6y4eqr90j7tmul4w2wa8pm7wx462hq0mg4tw", {
+        provider: AntennaUtils.antenna.iotx,
+        signer: AntennaUtils.antenna.iotx.signer,
+      });
+
+      const decimals = await contract.methods.decimals({
+        // @ts-ignore
+        account: AntennaUtils.antenna.iotx.accounts[0],
+        gasLimit: "300000",
+        gasPrice: "1000000000000",
+      });
+
+      const tokenAmount = new BigNumber(1).multipliedBy(new BigNumber(`1e${decimals.toNumber()}`));
+
+      const actionHash = await contract.methods.transfer(this.account.address, tokenAmount.toString(), {
+        // @ts-ignore
+        account: AntennaUtils.antenna.iotx.accounts[0],
+        gasLimit: "300000",
+        gasPrice: "1000000000000",
+      });
+
+      this.actionHash = actionHash;
+    } catch (e) {
+      window.console.log(`failed to transfer vita: ${e}`);
+    }
+  }
+
+  @action.bound
+  async transferIotx() {
+    try {
+      const contract = new Contract(CLAIM_ABI, "io1hp6y4eqr90j7tmul4w2wa8pm7wx462hq0mg4tw", {
+        provider: AntennaUtils.antenna.iotx,
+        signer: AntennaUtils.antenna.iotx.signer,
+      });
+
+      const actionHash = await AntennaUtils.antenna.iotx.sendTransfer({
+        to: this.account.address,
+        from: this.account.address,
+        value: toRau("1", "Iotx"),
+        gasLimit: "100000",
+        gasPrice: toRau("1", "Qev"),
+      });
+
+      this.actionHash = actionHash;
+    } catch (e) {
+      window.console.log(`failed to transfer vita: ${e}`);
     }
   }
 }

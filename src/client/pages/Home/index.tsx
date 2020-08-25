@@ -57,12 +57,19 @@ export const Home = () => {
             <button onClick={store.onConnectWallet}>Connect to wallet...</button>
           ) : (
             <div>
-              <span>
+              <p>
                 {wallet.account.address}: {wallet.account.balance}
-              </span>
+              </p>
               <Button className="px-2" onClick={() => wallet.claimVita()}>
                 Claim VITA
               </Button>
+              <Button className="px-2" onClick={() => wallet.transferVita()}>
+                Transfer 1 VITA
+              </Button>
+              <Button className="px-2" onClick={() => wallet.transferIotx()}>
+                Transfer 1 IOTX
+              </Button>
+              <p>{wallet.actionHash}</p>
             </div>
           )}
         </div>
