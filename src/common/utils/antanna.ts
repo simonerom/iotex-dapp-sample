@@ -6,7 +6,7 @@ import { JsBridgeSignerMobile } from "./js-plugin";
 import { IRequest } from "iotex-antenna/lib/plugin/ws/request";
 import sleepPromise from "sleep-promise";
 import { Contract } from "iotex-antenna/lib/contract/contract";
-import { SignerPlugin } from "iotex-antenna/lib/action/method";
+import antenna from "iotex-antenna/lib/antenna";
 
 export class AntennaUtils {
   public static defaultContractOptions = {
@@ -71,12 +71,15 @@ export function lazyGetContract(address: string, abi: any): Contract {
 }
 
 export async function getIoPayAddress(): Promise<string> {
+  if (!AntennaUtils.antenna) {
+    AntennaUtils.antenna = AntennaUtils.getAntenna();
+  }
   if (navigator.userAgent && (navigator.userAgent.includes("IoPayAndroid") || navigator.userAgent.includes("IoPayiOs"))) {
     // tslint:disable-next-line:no-unnecessary-local-variable
     const address = await getIoAddressFromIoPay();
     return address;
   }
-  const accounts = AntennaUtils.getAntenna().iotx.signer.getAccounts();
+  const accounts = await AntennaUtils.wsSigner.getAccounts();
   return (accounts && accounts[0] && accounts[0].address) || "";
 }
 

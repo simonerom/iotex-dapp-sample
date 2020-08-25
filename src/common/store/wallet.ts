@@ -39,14 +39,16 @@ export class WalletStore {
 
   @action.bound
   async initWS() {
-    const data = await getIoPayAddress();
-    window.console.log(data);
-    this.account.address = data;
-    if (this.enableConnect) {
-      setTimeout(() => {
-        this.initWS();
-      }, 5000);
+    const [err, address] = await utils.helper.promise.runAsync(getIoPayAddress());
+    if (err || address?.length == 0) {
+      if (this.enableConnect) {
+        setTimeout(() => {
+          this.initWS();
+        }, 5000);
+      }
+      return;
     }
+    this.account.address = address;
   }
 
   @action.bound
