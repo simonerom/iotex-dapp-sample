@@ -16,7 +16,7 @@ export async function bootstrap() {
   });
   app.disable("x-powered-by");
   app.use(compression());
-  // app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
+  app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
   app.useStaticAssets(process.env.RAZZLE_PUBLIC_DIR, {
     index: false,
     redirect: false,
