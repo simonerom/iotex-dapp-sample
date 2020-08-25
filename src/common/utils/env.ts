@@ -24,4 +24,7 @@ export class Env {
       return process.env;
     }
   }
+  isIoPayMobile() {
+    return navigator.userAgent && (navigator.userAgent.includes("IoPayAndroid") || navigator.userAgent.includes("IoPayiOs"));
+  }
 }

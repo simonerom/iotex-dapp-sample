@@ -17,11 +17,10 @@ export class AntennaUtils {
   public static wsSigner: WsSignerPlugin | undefined;
 
   static getAntenna(): Antenna {
-    let isIoPayMobile = navigator.userAgent && (navigator.userAgent.includes("IoPayAndroid") || navigator.userAgent.includes("IoPayiOs"));
     if (this.antenna) {
       return this.antenna;
     }
-    if (utils.env.isBrowser() && !isIoPayMobile) {
+    if (utils.env.isBrowser() && !utils.env.isIoPayMobile()) {
       this.wsSigner = new WsSignerPlugin({
         options: {
           packMessage: (data) => JSON.stringify(data),
@@ -38,7 +37,7 @@ export class AntennaUtils {
       this.antenna = antenna;
       return antenna;
     }
-    if (isIoPayMobile) {
+    if (utils.env.isIoPayMobile()) {
       const antenna = new Antenna(publicConfig.IOTEX_CORE_ENDPOPINT, {
         signer: new JsBridgeSignerMobile(),
       });
@@ -74,7 +73,7 @@ export async function getIoPayAddress(): Promise<string> {
   if (!AntennaUtils.antenna) {
     AntennaUtils.antenna = AntennaUtils.getAntenna();
   }
-  if (navigator.userAgent && (navigator.userAgent.includes("IoPayAndroid") || navigator.userAgent.includes("IoPayiOs"))) {
+  if (utils.env.isIoPayMobile()) {
     // tslint:disable-next-line:no-unnecessary-local-variable
     const address = await getIoAddressFromIoPay();
     return address;
