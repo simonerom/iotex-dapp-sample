@@ -1,10 +1,9 @@
 import WebSocket from "websocket-as-promised";
 import { Account } from "iotex-antenna/lib/account/account";
-import { Envelop, SealedEnvelop } from "iotex-antenna/lib/action/envelop";
-import { SignerPlugin, PluginOpts } from "iotex-antenna/lib/action/method";
+import { Envelop } from "iotex-antenna/lib/action/envelop";
+import { SignerPlugin } from "iotex-antenna/lib/action/method";
 import Options from "websocket-as-promised/types/options";
 import { utils } from ".";
-import { hash256b } from "iotex-antenna/lib/crypto/hash";
 
 interface IRequest {
   reqId?: number;
@@ -58,29 +57,17 @@ export class WsSignerPlugin implements SignerPlugin {
     return Promise.resolve(true);
   }
 
-  // public async signAndSend(envelop: Envelop): Promise<string> {
-  //   await this.wait();
-  //   const envelopString = Buffer.from(envelop.bytestream()).toString("hex");
-
-  //   const req: IRequest = {
-  //     envelop: envelopString,
-  //     type: "SIGN_AND_SEND",
-  //     origin: this.getOrigin(),
-  //   };
-  //   const res = await this.ws.sendRequest(req);
-  //   return res.actionHash ? res.actionHash : res;
-  // }
-
-  public async signOnly(envelop: Envelop, opts: PluginOpts) {
+  public async signAndSend(envelop: Envelop): Promise<string> {
+    await this.wait();
     const envelopString = Buffer.from(envelop.bytestream()).toString("hex");
+
     const req: IRequest = {
       envelop: envelopString,
-      type: "SIGN_ACTION",
+      type: "SIGN_AND_SEND",
       origin: this.getOrigin(),
     };
-    const signRes = await this.ws.sendRequest(req);
-    console.log(signRes);
-    return new SealedEnvelop(envelop, Buffer.from(signRes.publicKey, "hex"), Buffer.from(signRes.sig, "hex"));
+    const res = await this.ws.sendRequest(req);
+    return res.actionHash ? res.actionHash : res;
   }
 
   public async getAccount(address: string): Promise<Account> {
