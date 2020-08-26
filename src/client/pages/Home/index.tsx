@@ -5,6 +5,7 @@ import { useStore } from "../../../common/store/index";
 import { ClientOnly } from "../../components/ClientOnly/clientOnly";
 import { rpcClient } from "../../utils/rpc";
 import { Button } from "antd";
+import { publicConfig } from "../../../../configs/public";
 
 export const Home = () => {
   const { lang, wallet } = useStore();
@@ -14,12 +15,12 @@ export const Home = () => {
       this.count = count;
     },
     onConnectWallet() {
-      wallet.enableConnect = true;
+      wallet.autoConnect = true;
       wallet.initWS();
       window.location.replace("iopay://");
       setTimeout(() => {
         window.location.replace(location.href);
-      }, 5000);
+      }, 60000);
     },
   }));
   useEffect(() => {
@@ -58,7 +59,7 @@ export const Home = () => {
           ) : (
             <div>
               <p>
-                {wallet.account.address}: {wallet.account.balance}
+                {wallet.account.address}: {wallet.account.balance} IOTX
               </p>
               <Button className="px-2" onClick={() => wallet.claimVita()}>
                 Claim VITA
@@ -69,7 +70,11 @@ export const Home = () => {
               <Button className="px-2" onClick={() => wallet.transferIotx()}>
                 Transfer 1 IOTX
               </Button>
-              <p>{wallet.actionHash}</p>
+              {wallet.actionHash && (
+                <p>
+                  Action Hash: <a href={`${publicConfig.IOTEXSCAN_ENDPOINT}/action/${wallet.actionHash}`}>{wallet.actionHash}</a>
+                </p>
+              )}
             </div>
           )}
         </div>

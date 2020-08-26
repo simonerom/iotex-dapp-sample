@@ -1,20 +1,17 @@
 import WebSocket from "websocket-as-promised";
 import { Account } from "iotex-antenna/lib/account/account";
-import { Envelop } from "iotex-antenna/lib/action/envelop";
-import { SignerPlugin } from "iotex-antenna/lib/action/method";
+import { Envelop, SealedEnvelop } from "iotex-antenna/lib/action/envelop";
+import { SignerPlugin, PluginOpts } from "iotex-antenna/lib/action/method";
 import Options from "websocket-as-promised/types/options";
 import { utils } from ".";
+import { hash256b } from "iotex-antenna/lib/crypto/hash";
 
 interface IRequest {
   reqId?: number;
-  type: "SIGN_AND_SEND" | "GET_ACCOUNTS";
+  type: "SIGN_AND_SEND" | "GET_ACCOUNTS" | "SIGN_MSG" | "SIGN_ACTION";
   envelop?: string; // serialized proto string
   origin?: string;
-}
-
-export interface WsSignerPluginOptions extends Options {
-  retryCount?: number;
-  retryDuration?: number;
+  msg?: string;
 }
 
 export interface WsRequest {
@@ -27,9 +24,9 @@ export class WsSignerPlugin implements SignerPlugin {
 
   readonly provider: string;
 
-  readonly options: WsSignerPluginOptions;
+  readonly options: Options;
 
-  constructor({ provider = "wss://local.iotex.io:64102", options = { retryCount: 3, retryDuration: 50, timeout: 5000 } }: { provider?: string; options: WsSignerPluginOptions }) {
+  constructor({ provider = "wss://local.iotex.io:64102", options = { timeout: 5000 } }: { provider?: string; options: Options }) {
     this.provider = provider;
     this.options = options;
   }
@@ -44,7 +41,9 @@ export class WsSignerPlugin implements SignerPlugin {
     this.ws.onOpen.addListener(() => {
       utils.eventBus.emit("client.iopay.connected");
     });
+
     this.ws.onClose.addListener = () => {
+      console.log("close");
       utils.eventBus.emit("client.iopay.close");
     };
     await this.ws.open();
@@ -59,17 +58,29 @@ export class WsSignerPlugin implements SignerPlugin {
     return Promise.resolve(true);
   }
 
-  public async signAndSend(envelop: Envelop): Promise<string> {
-    await this.wait();
-    const envelopString = Buffer.from(envelop.bytestream()).toString("hex");
+  // public async signAndSend(envelop: Envelop): Promise<string> {
+  //   await this.wait();
+  //   const envelopString = Buffer.from(envelop.bytestream()).toString("hex");
 
+  //   const req: IRequest = {
+  //     envelop: envelopString,
+  //     type: "SIGN_AND_SEND",
+  //     origin: this.getOrigin(),
+  //   };
+  //   const res = await this.ws.sendRequest(req);
+  //   return res.actionHash ? res.actionHash : res;
+  // }
+
+  public async signOnly(envelop: Envelop, opts: PluginOpts) {
+    const envelopString = Buffer.from(envelop.bytestream()).toString("hex");
     const req: IRequest = {
       envelop: envelopString,
-      type: "SIGN_AND_SEND",
+      type: "SIGN_ACTION",
       origin: this.getOrigin(),
     };
-    const res = await this.ws.sendRequest(req);
-    return res;
+    const signRes = await this.ws.sendRequest(req);
+    console.log(signRes);
+    return new SealedEnvelop(envelop, Buffer.from(signRes.publicKey, "hex"), Buffer.from(signRes.sig, "hex"));
   }
 
   public async getAccount(address: string): Promise<Account> {

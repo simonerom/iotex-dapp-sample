@@ -1,9 +1,9 @@
 import { observable, action, computed } from "mobx";
 import remotedev from "mobx-remotedev";
-import { AntennaUtils, getIoPayAddress } from "../utils/antanna";
+import { AntennaUtils } from "../utils/antanna";
 import { utils } from "../utils/index";
 import { fromRau, toRau } from "iotex-antenna/lib/account/utils";
-import { CLAIM_ABI } from "../../client/utils/abi";
+import { CLAIM_ABI } from "../constants/abi";
 import { Contract } from "iotex-antenna/lib/contract/contract";
 import BigNumber from "bignumber.js";
 
@@ -13,7 +13,7 @@ export class WalletStore {
     address: "",
     balance: "",
   };
-  @observable enableConnect = false;
+  @observable autoConnect = false;
   @observable actionHash = "";
 
   @action.bound
@@ -33,17 +33,19 @@ export class WalletStore {
         console.log("iopay-desktop connected.");
       })
       .on("client.iopay.close", () => {
+        console.log("iopay-desktop disconnected.");
         this.account = { address: "", balance: "" };
       });
   }
 
   @action.bound
   async initWS() {
-    const [err, address] = await utils.helper.promise.runAsync(getIoPayAddress());
+    const [err, address] = await utils.helper.promise.runAsync(AntennaUtils.getIoPayAddress());
     if (err || address?.length == 0) {
-      if (this.enableConnect) {
-        setTimeout(() => {
-          this.initWS();
+      if (this.autoConnect) {
+        setTimeout(async () => {
+          await this.initWS();
+          await this.loadAccount();
         }, 5000);
       }
       return;
@@ -115,11 +117,6 @@ export class WalletStore {
   @action.bound
   async transferIotx() {
     try {
-      const contract = new Contract(CLAIM_ABI, "io1hp6y4eqr90j7tmul4w2wa8pm7wx462hq0mg4tw", {
-        provider: AntennaUtils.antenna.iotx,
-        signer: AntennaUtils.antenna.iotx.signer,
-      });
-
       const actionHash = await AntennaUtils.antenna.iotx.sendTransfer({
         to: this.account.address,
         from: this.account.address,
@@ -130,7 +127,7 @@ export class WalletStore {
 
       this.actionHash = actionHash;
     } catch (e) {
-      window.console.log(`failed to transfer vita: ${e}`);
+      window.console.log(`failed to transfer iotx: ${e}`);
     }
   }
 }
