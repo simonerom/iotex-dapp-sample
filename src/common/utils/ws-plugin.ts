@@ -7,14 +7,10 @@ import { utils } from ".";
 
 interface IRequest {
   reqId?: number;
-  type: "SIGN_AND_SEND" | "GET_ACCOUNTS";
+  type: "SIGN_AND_SEND" | "GET_ACCOUNTS" | "SIGN_MSG" | "SIGN_ACTION";
   envelop?: string; // serialized proto string
   origin?: string;
-}
-
-export interface WsSignerPluginOptions extends Options {
-  retryCount?: number;
-  retryDuration?: number;
+  msg?: string;
 }
 
 export interface WsRequest {
@@ -27,9 +23,9 @@ export class WsSignerPlugin implements SignerPlugin {
 
   readonly provider: string;
 
-  readonly options: WsSignerPluginOptions;
+  readonly options: Options;
 
-  constructor({ provider = "wss://local.iotex.io:64102", options = { retryCount: 3, retryDuration: 50, timeout: 5000 } }: { provider?: string; options: WsSignerPluginOptions }) {
+  constructor({ provider = "wss://local.iotex.io:64102", options = { timeout: 5000 } }: { provider?: string; options: Options }) {
     this.provider = provider;
     this.options = options;
   }
@@ -44,7 +40,9 @@ export class WsSignerPlugin implements SignerPlugin {
     this.ws.onOpen.addListener(() => {
       utils.eventBus.emit("client.iopay.connected");
     });
+
     this.ws.onClose.addListener = () => {
+      console.log("close");
       utils.eventBus.emit("client.iopay.close");
     };
     await this.ws.open();
@@ -69,7 +67,7 @@ export class WsSignerPlugin implements SignerPlugin {
       origin: this.getOrigin(),
     };
     const res = await this.ws.sendRequest(req);
-    return res;
+    return res.actionHash ? res.actionHash : res;
   }
 
   public async getAccount(address: string): Promise<Account> {
