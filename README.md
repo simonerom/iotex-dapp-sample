@@ -1,5 +1,13 @@
 # iotex-dapp-sample
 
+iotex-dapp-sample is a frontend website for [iotex-core dapp](https://github.com/iotexproject/iotex-dapp-sample).
+
+Or deploy your own instance on Heroku.
+
+<a href="https://heroku.com/deploy?template=https://github.com/iotexproject/iotex-dapp-sample">
+  <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
+</a>
+
 ## How to use
 
 Install it and run:
