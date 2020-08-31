@@ -34,51 +34,27 @@ export const Home = () => {
     });
   }, []);
   return useObserver(() => (
-    <ClientOnly>
-      <div className="home">
+    <div className="home w-full">
+      {!wallet.account.address ? (
+        <button onClick={store.onConnectWallet}>Connect to wallet...</button>
+      ) : (
         <div>
-          {lang.t("HELLO_MESSAGE", { message: "React" })}: {store.count}
-        </div>
-        <Button className="px-2" onClick={() => store.setCount(store.count + 1)}>
-          +
-        </Button>
-        <Button className="px-2" onClick={() => store.setCount(store.count - 1)}>
-          -
-        </Button>
-        <div>
-          <Button className="px-2" onClick={() => lang.setLang("en")}>
-            en
+          <Button className="px-2 mx-2" onClick={() => wallet.claimVita()}>
+            Claim VITA
           </Button>
-          <Button className="px-2" onClick={() => lang.setLang("zh")}>
-            zh
+          <Button className="px-2 mx-2" onClick={() => wallet.transferVita()}>
+            Transfer 1 VITA
           </Button>
-        </div>
-        <div>
-          {!wallet.account.address ? (
-            <button onClick={store.onConnectWallet}>Connect to wallet...</button>
-          ) : (
-            <div>
-              <p>
-                {wallet.account.address}: {wallet.account.balance} IOTX
-              </p>
-              <Button className="px-2" onClick={() => wallet.claimVita()}>
-                Claim VITA
-              </Button>
-              <Button className="px-2" onClick={() => wallet.transferVita()}>
-                Transfer 1 VITA
-              </Button>
-              <Button className="px-2" onClick={() => wallet.transferIotx()}>
-                Transfer 1 IOTX
-              </Button>
-              {wallet.actionHash && (
-                <p>
-                  Action Hash: <a href={`${publicConfig.IOTEXSCAN_ENDPOINT}/action/${wallet.actionHash}`}>{wallet.actionHash}</a>
-                </p>
-              )}
-            </div>
+          <Button className="px-2 mx-2" onClick={() => wallet.transferIotx()}>
+            Transfer 1 IOTX
+          </Button>
+          {wallet.actionHash && (
+            <p>
+              Action Hash: <a href={`${publicConfig.IOTEXSCAN_ENDPOINT}/action/${wallet.actionHash}`}>{wallet.actionHash}</a>
+            </p>
           )}
         </div>
-      </div>
-    </ClientOnly>
+      )}
+    </div>
   ));
 };

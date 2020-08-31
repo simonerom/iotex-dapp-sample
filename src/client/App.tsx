@@ -4,6 +4,7 @@ import { Home } from "./pages/Home";
 
 import "./App.scss";
 import { useStore } from "../common/store/index";
+import { MainLayout } from "./components/MainLayout/index";
 
 const App = () => {
   //@ts-ignore
@@ -12,9 +13,11 @@ const App = () => {
     lang.init();
   }, []);
   return (
-    <Switch>
-      <Route exact={true} path="/" component={Home} />
-    </Switch>
+    <MainLayout>
+      <Switch>
+        <Route exact={true} path="/" component={Home} />
+      </Switch>
+    </MainLayout>
   );
 };
 
