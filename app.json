@@ -1,0 +1,7 @@
+{
+  "name": "iotex-dapp-sample",
+  "description": "Get started to build your dDapp on IoTeX",
+  "repository": "https://github.com/iotexproject/iotex-dapp-sample",
+  "logo": "https://iotex.io/favicon.ico",
+  "keywords": ["typescript", "react", "GraphQL", "IoTeX", "dApp"]
+}

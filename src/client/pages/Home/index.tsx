@@ -4,7 +4,7 @@ import "./index.scss";
 import { useStore } from "../../../common/store/index";
 import { ClientOnly } from "../../components/ClientOnly/clientOnly";
 import { rpcClient } from "../../utils/rpc";
-import { Button, Menu } from "antd";
+import { Button } from "antd";
 import { publicConfig } from "../../../../configs/public";
 
 export const Home = () => {

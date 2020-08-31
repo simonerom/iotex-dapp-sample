@@ -81,7 +81,6 @@ export class WalletStore {
         provider: AntennaUtils.antenna.iotx,
         signer: AntennaUtils.antenna.iotx.signer,
       });
-
       const actionData = await contract.methods.claim({
         // @ts-ignore
         account: AntennaUtils.antenna.iotx.accounts[0],
@@ -132,7 +131,6 @@ export class WalletStore {
         gasLimit: "100000",
         gasPrice: toRau("1", "Qev"),
       });
-
       // @ts-ignore
       this.actionHash = actionData.actionHash;
     } catch (e) {
