@@ -1,12 +1,10 @@
-//@flow
 import { Buffer } from "buffer";
-// @ts-ignore
 import document from "global/document";
-// @ts-ignore
 import window from "global/window";
 import { Account } from "iotex-antenna/lib/account/account";
 import { Envelop } from "iotex-antenna/lib/action/envelop";
 import { SignerPlugin } from "iotex-antenna/lib/action/method";
+import sleepPromise from "sleep-promise";
 
 // tslint:disable-next-line:insecure-random
 let reqId = Math.round(Math.random() * 10000);
@@ -19,7 +17,8 @@ interface IRequest {
   message?: string | Buffer | Uint8Array; // serialized proto string
 }
 
-export class JsBridgeSignerMobile implements SignerPlugin {
+export class JsBridgeSigner implements SignerPlugin {
+  ioPayAddress: string;
   constructor() {
     this.init();
   }
@@ -84,7 +83,7 @@ export class JsBridgeSignerMobile implements SignerPlugin {
       type: "SIGN_AND_SEND",
     };
 
-    return new Promise<string>((resolve) =>
+    return new Promise<any>((resolve) =>
       window.WebViewJavascriptBridge.callHandler("sign_and_send", JSON.stringify(req), (responseData: string) => {
         let resp = { reqId: -1, actionHash: "" };
         try {
@@ -93,7 +92,7 @@ export class JsBridgeSignerMobile implements SignerPlugin {
           return;
         }
         if (resp.reqId === id) {
-          resolve(resp.actionHash);
+          resolve(resp);
         }
       })
     );
@@ -108,31 +107,43 @@ export class JsBridgeSignerMobile implements SignerPlugin {
   }
 
   async getAccounts(): Promise<Array<Account>> {
+    if (this.ioPayAddress) {
+      const account = new Account();
+      account.address = this.ioPayAddress;
+      return [account];
+    }
+    window.console.log("getIoAddressFromIoPay start");
     const id = reqId++;
-    const req = {
+    const req: IRequest = {
       reqId: id,
       type: "GET_ACCOUNTS",
     };
-
-    window.console.log(JSON.stringify(req));
-
-    // tslint:disable-next-line:promise-must-complete
-    return new Promise<Array<Account>>(async (resolve) => {
-      // tslint:disable-next-line:no-any
-      window.document.addEventListener("message", async (e: any) => {
-        let resp = { reqId: -1, accounts: [] };
+    let sec = 1;
+    while (!window.WebViewJavascriptBridge) {
+      window.console.log("getIoAddressFromIoPay get_account sleepPromise sec: ", sec);
+      await sleepPromise(sec * 200);
+      sec = sec * 1.6;
+      if (sec >= 48) {
+        sec = 48;
+      }
+    }
+    return new Promise<Array<Account>>((resolve) =>
+      window.WebViewJavascriptBridge.callHandler("get_account", JSON.stringify(req), (responseData: string) => {
+        window.console.log("getIoAddressFromIoPay get_account responseData: ", responseData);
+        let resp = { reqId: -1, address: "" };
         try {
-          resp = JSON.parse(e.data);
-        } catch (err) {
+          resp = JSON.parse(responseData);
+        } catch (_) {
           return;
         }
-        window.console.log(resp);
-
         if (resp.reqId === id) {
-          resolve(resp.accounts);
+          this.ioPayAddress = resp.address;
+          const account = new Account();
+          account.address = this.ioPayAddress;
+          resolve([account]);
         }
-      });
-    });
+      })
+    );
   }
 
   signMessage(message: string | Buffer | Uint8Array): Promise<Buffer> {

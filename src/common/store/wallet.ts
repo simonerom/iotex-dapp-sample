@@ -1,6 +1,6 @@
 import { observable, action, computed } from "mobx";
 import remotedev from "mobx-remotedev";
-import { AntennaUtils, getIoPayAddress } from "../utils/antanna";
+import { AntennaUtils } from "../utils/antanna";
 import { utils } from "../utils/index";
 import { fromRau, toRau } from "iotex-antenna/lib/account/utils";
 import { CLAIM_ABI } from "../../client/utils/abi";
@@ -39,8 +39,9 @@ export class WalletStore {
 
   @action.bound
   async initWS() {
-    const [err, address] = await utils.helper.promise.runAsync(getIoPayAddress());
-    if (err || address?.length == 0) {
+    AntennaUtils.getAntenna();
+    const [err, accounts] = await utils.helper.promise.runAsync(AntennaUtils.getAccounts());
+    if (err || accounts?.length == 0) {
       if (this.enableConnect) {
         setTimeout(() => {
           this.initWS();
@@ -48,7 +49,7 @@ export class WalletStore {
       }
       return;
     }
-    this.account.address = address;
+    this.account.address = accounts[0].address;
   }
 
   @action.bound
