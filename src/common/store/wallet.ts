@@ -28,6 +28,16 @@ export class WalletStore {
   //   utils.eventBus.removeAllListeners("client.iopay.close").removeAllListeners("client.iopay.connected");
   // }
 
+  @action.bound
+  connectWallet() {
+    this.enableConnect = true;
+    this.initWS().then(() => this.loadAccount());
+    window.location.replace("iopay://");
+    setTimeout(() => {
+      window.location.replace(location.href);
+    }, 5000);
+  }
+
   initEvent() {
     utils.eventBus
       .on("client.iopay.connected", () => {
@@ -72,14 +82,13 @@ export class WalletStore {
         signer: AntennaUtils.antenna.iotx.signer,
       });
 
-      const actionHash = await contract.methods.claim({
+      const actionData = await contract.methods.claim({
         // @ts-ignore
         account: AntennaUtils.antenna.iotx.accounts[0],
-        gasLimit: "300000",
-        gasPrice: "1000000000000",
+        ...AntennaUtils.defaultContractOptions,
       });
 
-      this.actionHash = actionHash;
+      this.actionHash = actionData.actionHash;
     } catch (e) {
       window.console.log(`failed to claim vita: ${e}`);
     }
@@ -96,20 +105,18 @@ export class WalletStore {
       const decimals = await contract.methods.decimals({
         // @ts-ignore
         account: AntennaUtils.antenna.iotx.accounts[0],
-        gasLimit: "300000",
-        gasPrice: "1000000000000",
+        ...AntennaUtils.defaultContractOptions,
       });
 
       const tokenAmount = new BigNumber(1).multipliedBy(new BigNumber(`1e${decimals.toNumber()}`));
 
-      const actionHash = await contract.methods.transfer(this.account.address, tokenAmount.toString(), {
+      const actionData = await contract.methods.transfer(this.account.address, tokenAmount.toString(), {
         // @ts-ignore
         account: AntennaUtils.antenna.iotx.accounts[0],
-        gasLimit: "300000",
-        gasPrice: "1000000000000",
+        ...AntennaUtils.defaultContractOptions,
       });
 
-      this.actionHash = actionHash;
+      this.actionHash = actionData.actionHash;
     } catch (e) {
       window.console.log(`failed to transfer vita: ${e}`);
     }
@@ -118,7 +125,7 @@ export class WalletStore {
   @action.bound
   async transferIotx() {
     try {
-      const actionHash = await AntennaUtils.antenna.iotx.sendTransfer({
+      const actionData = await AntennaUtils.antenna.iotx.sendTransfer({
         to: this.account.address,
         from: this.account.address,
         value: toRau("1", "Iotx"),
@@ -126,7 +133,8 @@ export class WalletStore {
         gasPrice: toRau("1", "Qev"),
       });
 
-      this.actionHash = actionHash;
+      // @ts-ignore
+      this.actionHash = actionData.actionHash;
     } catch (e) {
       window.console.log(`failed to transfer iotx: ${e}`);
     }

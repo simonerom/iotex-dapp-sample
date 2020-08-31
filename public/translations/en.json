@@ -1,4 +1,6 @@
 {
   "HELLO_MESSAGE": "Hello ${message}",
-  "count": "count"
+  "count": "count",
+  "home.connect_wallet": "Connect Wallet",
+  "header.connect_to_wallet": "Connect to a wallet"
 }
