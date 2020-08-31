@@ -31,22 +31,12 @@ export class AntennaUtils {
             },
           });
       this.signerPlugin = wsSigner instanceof WsSignerPlugin ? wsSigner.start() : wsSigner;
-
       const antenna = new Antenna(publicConfig.IOTEX_CORE_ENDPOPINT, {
         signer: this.signerPlugin,
       });
       this.antenna = antenna;
       return antenna;
     }
-    if (utils.env.isIoPayMobile()) {
-      const antenna = new Antenna(publicConfig.IOTEX_CORE_ENDPOPINT, {
-        signer: new JsBridgeSignerMobile(),
-      });
-      //@ts-ignore
-      this.antenna = antenna;
-      return antenna;
-    }
-
     if (utils.env.isSSR()) {
       const antenna = new Antenna(publicConfig.IOTEX_CORE_ENDPOPINT);
       this.antenna = antenna;
