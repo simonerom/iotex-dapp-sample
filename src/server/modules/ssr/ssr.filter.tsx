@@ -33,7 +33,7 @@ export class SSRFilter implements ExceptionFilter {
     <head>
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <meta charSet='utf-8' />
-      <title>React Project</title>
+      <title>My Awesome IoTeX dApp!!</title>
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <script>
         window.__ROOT__STORE__ = ${JSON.stringify(rootStore)};
