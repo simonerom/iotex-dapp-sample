@@ -1,6 +1,10 @@
-# iotex-dapp-sample
+# IoTeX dApp Sample
 
 This repo provides a boilerplate IoTeX Dapp, with examples to use the antenna SDK, connect to the ioPay wallet, show balance, send IOTX and send XRC20 tokens.
+
+## Live demo
+
+https://iotex-dapp-sample.herokuapp.com/
 
 ## How to Use
 
