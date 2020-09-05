@@ -1,4 +1,5 @@
 # iotex-dapp-sample
+
 This repo provides a boilerplate IoTeX Dapp, with examples to use the antenna SDK, connect to the ioPay wallet, show balance, send IOTX and send XRC20 tokens.
 
 ## How to Use
@@ -9,6 +10,7 @@ Install it and run:
 npm install
 npm run dev
 ```
+
 ### Install Javascript SDK
 
 In your JS project root, use npm install or yarn add.
@@ -23,22 +25,21 @@ or add the following line to your html.
 <script src="https://cdn.jsdelivr.net/npm/iotex-antenna@0.29.1/lib/iotex-antenna.browser.min.js"></script>
 ```
 
-
-You can simple use the ``` AntennaUtils ``` in our example code:
+You can simple use the `AntennaUtils` in our example code:
 
 ```bash
 https://github.com/iotexproject/iotex-dapp-sample/blob/master/src/common/utils/antanna.ts
 ```
 
-There are two plugin for our different IoPay Wallet:
+There are two plugin for our different ioPay Wallet:
 
-* For desktop: 
+- For desktop:
 
 ```
 https://github.com/iotexproject/iotex-dapp-sample/blob/master/src/common/utils/ws-plugin.ts
 ```
 
-* For mobile:  
+- For mobile:
 
 ```
 https://github.com/iotexproject/iotex-dapp-sample/blob/master/src/common/utils/js-plugin.ts
@@ -49,7 +50,6 @@ https://github.com/iotexproject/iotex-dapp-sample/blob/master/src/common/utils/j
 <a href="https://heroku.com/deploy?template=https://github.com/iotexproject/iotex-dapp-sample">
   <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
 </a>
-
 
 ## Reference
 
