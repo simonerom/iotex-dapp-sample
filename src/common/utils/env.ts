@@ -1,3 +1,4 @@
+import { utils } from "./index";
 export class Env {
   isSSR() {
     return typeof window === "undefined";
@@ -25,6 +26,15 @@ export class Env {
     }
   }
   isIoPayMobile() {
+    if (utils.env.isSSR()) return false;
     return navigator.userAgent && (navigator.userAgent.includes("IoPayAndroid") || navigator.userAgent.includes("IoPayiOs"));
+  }
+  getBoolean(val: string | boolean) {
+    if (typeof val == "string") {
+      return val == "true";
+    } else if (typeof val == "boolean") {
+      return val;
+    }
+    return false;
   }
 }

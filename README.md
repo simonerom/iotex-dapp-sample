@@ -7,23 +7,14 @@ This repo provides a boilerplate IoTeX Dapp, with examples to use the antenna SD
 Install it and run:
 
 ```bash
-npm install
-npm run dev
+$ cp .env.tmpl .env
+$ npm install
+$ npm run dev
 ```
 
-### Install Javascript SDK
+## Plugins
 
-In your JS project root, use npm install or yarn add.
-
-```bash
-npm install iotex-antenna
-```
-
-or add the following line to your html.
-
-```bash
-<script src="https://cdn.jsdelivr.net/npm/iotex-antenna@0.29.1/lib/iotex-antenna.browser.min.js"></script>
-```
+### Iotex-Antenna
 
 You can simple use the `AntennaUtils` in our example code:
 
@@ -64,3 +55,5 @@ razzle: https://github.com/jaredpalmer/razzle
 ReduxDevTools: https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en
 
 wildcard-api: https://github.com/reframejs/wildcard-api
+
+iotex-antenna: https://docs.iotex.io/developer/sdk/install-antenna-js.html
